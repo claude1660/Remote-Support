@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.PlainRemote"
+        android:usesCleartextTraffic="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".WebServerService"
+            android:foregroundServiceType="mediaProjection"
+            android:exported="false" />
+
+        <!--
+          Internet-mode session: same screen-capture permission model as
+          WebServerService above (user must grant it fresh every time),
+          but streams over WebRTC instead of local HTTP, so it reaches
+          the technician over any network.
+        -->
+        <service
+            android:name=".RemoteSessionService"
+            android:foregroundServiceType="mediaProjection"
+            android:exported="false" />
+
+        <!--
+          IMPORTANT: The accessibility service is what lets the phone
+          simulate taps/swipes/text coming from the PC browser.
+          Android requires the user to manually enable this in
+          Settings > Accessibility on THEIR OWN device — it cannot be
+          turned on programmatically, by design, to prevent abuse.
+        -->
+        <service
+            android:name=".RemoteAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+    </application>
+</manifest>

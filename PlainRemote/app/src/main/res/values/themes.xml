@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.PlainRemote" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#6C5CE7</item>
+        <item name="colorPrimaryDark">#4834D4</item>
+        <item name="colorAccent">#00CEC9</item>
+    </style>
+</resources>

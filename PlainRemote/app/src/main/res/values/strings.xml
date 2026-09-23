@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PlainRemote</string>
+    <string name="accessibility_service_description">
+        Allows PlainRemote to simulate taps and swipes that you send
+        from your own PC browser to control this device remotely.
+        Only enable this if you set up PlainRemote yourself.
+    </string>
+</resources>

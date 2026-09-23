@@ -1,0 +1,83 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services' apply false
+}
+
+// Only wires up Firebase config injection once app/google-services.json
+// actually exists, so `./gradlew assembleDebug` still succeeds before
+// you've set up a Firebase project (internet mode just won't work yet).
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.example.plainremote'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.example.plainremote"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    // WebRTC ships native .so files for 4 CPU architectures; almost every
+    // real phone only needs one of them. Splitting keeps each installed
+    // APK small instead of everyone downloading all 4 copies. A single
+    // "universal" APK (all architectures, for whoever needs it) is still
+    // produced alongside the per-ABI ones.
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a'
+            universalApk true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // Lightweight embedded HTTP server (used by the local Wi-Fi mode)
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+
+    // Firebase Firestore - used ONLY to exchange small WebRTC handshake
+    // messages (SDP/ICE) between the phone and the technician's browser.
+    // Free (Spark) plan is plenty for this - it's a few KB of text per
+    // session, never the screen video itself.
+    implementation platform('com.google.firebase:firebase-bom:33.5.1')
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+
+    // WebRTC - the actual screen video + remote-control data travel
+    // peer-to-peer over this, directly between the two devices, so it
+    // never touches Firebase and works over any network (mobile data,
+    // different Wi-Fi networks, etc.), not just local Wi-Fi.
+    implementation 'io.github.webrtc-sdk:android:125.6422.06'
+}
